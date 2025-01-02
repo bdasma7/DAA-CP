@@ -15,7 +15,7 @@
         <p>This is a simple placeholder website created as an example project.</p>
     </main>
     <footer>
-        <p>&copy; Our Project. All rights reserved.</p>
+        <p>&copy;  DAA Course Project | Designed by Students of KLE Technological University.</p>
     </footer>
 
     <script src="script.js"></script>
