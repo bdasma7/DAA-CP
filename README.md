@@ -12,10 +12,12 @@
         <h1>Welcome to My Dummy Website</h1>
     </header>
     <main>
-        <p>This is a simple placeholder website.</p>
+        <p>This is a simple placeholder website created as an example project.</p>
     </main>
     <footer>
-        <p>Created by Me</p>
+        <p>&copy; 2025 My Dummy Website. All rights reserved.</p>
     </footer>
+
+    <script src="script.js"></script>
 </body>
 </html>
