@@ -12,7 +12,7 @@
         <h1>Our Project</h1>
     </header>
     <main>
-        <p>This is a simple placeholder website created as an example project.</p>
+        <p>In a smart city, getting lost is just a bug in the system.</p>
     </main>
     <footer>
         <p>&copy;  DAA Course Project | Designed by Students of KLE Technological University.</p>
