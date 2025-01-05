@@ -842,7 +842,16 @@ int main() {
         </pre>
     </div>
 
-    <script>
+<script>
+        // Function to run the C++ code that has been compiled to WebAssembly
+        function runCppCode() {
+            // Assuming the C++ code is compiled and ready to run in the Wasm environment
+            Module.onRuntimeInitialized = function() {
+                // Call the C++ function (main function)
+                Module._main();
+            };
+        }
+
         function toggleCode() {
             const codeBlock = document.getElementById('cppCode');
             codeBlock.style.display = codeBlock.style.display === 'none' ? 'block' : 'none';
@@ -858,6 +867,7 @@ int main() {
             }
         }
     </script>
+
 
     <!-- Footer -->
     <footer>
