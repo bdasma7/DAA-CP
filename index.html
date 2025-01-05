@@ -842,14 +842,25 @@ int main() {
         </pre>
     </div>
 
-<script>
-        // Function to run the C++ code that has been compiled to WebAssembly
+    <!-- WebAssembly JavaScript Glue -->
+    <script src="your_output.js"></script>
+
+    <div id="cpp-output">
+        <button onclick="runCppCode()">Run C++ Code</button>
+        <pre id="cppResult"></pre>
+    </div>
+
+    <script>
+        // Run the C++ code via WebAssembly
         function runCppCode() {
-            // Assuming the C++ code is compiled and ready to run in the Wasm environment
-            Module.onRuntimeInitialized = function() {
-                // Call the C++ function (main function)
-                Module._main();
-            };
+            if (typeof Module !== 'undefined' && Module.onRuntimeInitialized) {
+                Module.onRuntimeInitialized = function() {
+                    // Call the C++ function (main function)
+                    Module._main(); // Or whatever your function is
+                };
+            } else {
+                console.error('WebAssembly module not loaded.');
+            }
         }
 
         function toggleCode() {
@@ -857,7 +868,7 @@ int main() {
             codeBlock.style.display = codeBlock.style.display === 'none' ? 'block' : 'none';
         }
 
-        // Additional toggle for SDGs section
+        // Toggle SDGs section
         function toggleInfo(id) {
             const section = document.getElementById(id);
             if (section.style.display === "none" || section.style.display === "") {
@@ -867,7 +878,6 @@ int main() {
             }
         }
     </script>
-
 
     <!-- Footer -->
     <footer>
