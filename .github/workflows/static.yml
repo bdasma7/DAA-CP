@@ -1,4 +1,3 @@
-# Simple workflow for deploying static content to GitHub Pages
 name: Deploy static content to Pages
 
 on:
@@ -28,16 +27,44 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      # Checkout the code
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      # Set up Emscripten to compile C++ code
+      - name: Set up Emscripten
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          
+      - name: Install Emscripten
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake
+          git clone https://github.com/emscripten-core/emsdk.git
+          cd emsdk
+          ./emsdk install latest
+          ./emsdk activate latest
+          source ./emsdk_env.sh
+
+      # Compile C++ code to WebAssembly
+      - name: Compile C++ code to WebAssembly
+        run: |
+          emcc your_cpp_file.cpp -o output.html
+
+      # Setup Pages (after compiling)
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      # Upload the compiled artifact (including .html, .js, .wasm files)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
+          path: './output.html' # Replace with your compiled files
+
+      # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
