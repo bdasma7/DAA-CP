@@ -256,6 +256,28 @@
 </style>
 </head>
 <body>
+	 <h1>Run C++ Code in Browser</h1>
+
+    <!-- Button to Run C++ Code -->
+    <button class="button" id="runButton">Run C++ Code</button>
+
+    <div id="output"></div>
+
+    <!-- Include the Emscripten-generated JavaScript file -->
+    <script src="output.js"></script>
+
+    <script>
+        // Run the C++ code when the button is clicked
+        document.getElementById('runButton').addEventListener('click', function() {
+            // Wait for the WebAssembly to be ready
+            Module.onRuntimeInitialized = function() {
+                // Call a function from the C++ code
+                const result = Module._your_cpp_function();  // Replace with your actual function name
+                document.getElementById('output').innerHTML = "Output: " + result;
+            };
+        });
+    </script>
+</body>
 
     <!-- Your content goes here -->
 
