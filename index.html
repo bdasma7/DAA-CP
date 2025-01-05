@@ -225,34 +225,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SDGs in Code</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        pre {
-            background: #f4f4f4;
-            padding: 10px;
-            border: 1px solid #ddd;
-            overflow: auto;
-        }
-    </style>
+   <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    tr:hover {
+        background-color: #f1f1f1;
+    }
+    pre {
+        background: #f4f4f4;
+        padding: 10px;
+        border: 1px solid #ddd;
+        overflow: auto;
+        color: black; /* Change the text color to black */
+    }
+</style>
 </head>
 <body>
 
@@ -314,11 +315,11 @@
 using namespace std;
 
 struct Transport {
-    string regNo;
-    string type;
-    double cost;
-    string destination;
-    string arrivalTime;
+    string regNo;       // Registration number
+    string type;        // Type of transport
+    double cost;        // Cost of transport
+    string destination; // Destination
+    string arrivalTime; // Arrival time
 };
 
 struct Edge {
@@ -327,20 +328,515 @@ struct Edge {
 };
 
 class TransportSystem {
-    // Class implementation
-};
+private:
+    vector<Transport> transports; // Vector to store transport data
+    vector<Edge> edges;           // To store the graph as a list of edges
 
+    // Graph represented as an adjacency list
+    map<string, list<pair<string, double>>> cityGraph;
+
+    // Helper functions for Union-Find
+    map<string, string> parent; // Parent map for union-find
+    map<string, int> rank;      // Rank map for union-find
+
+    void makeSet(const string& node) {
+        parent[node] = node;
+        rank[node] = 0;
+    }
+
+    string findSet(const string& node) {
+        if (parent[node] != node) {
+            parent[node] = findSet(parent[node]); // Path compression
+        }
+        return parent[node];
+    }
+
+    void unionSets(const string& node1, const string& node2) {
+        string root1 = findSet(node1);
+        string root2 = findSet(node2);
+
+        if (root1 != root2) {
+            if (rank[root1] < rank[root2]) {
+                parent[root1] = root2;
+            } else if (rank[root1] > rank[root2]) {
+                parent[root2] = root1;
+            } else {
+                parent[root2] = root1;
+                rank[root1]++;
+            }
+        }
+    }
+
+    // KMP Helper function to build the prefix table
+    vector<int> buildPrefixTable(const string& pattern) {
+        vector<int> prefixTable(pattern.size(), 0);
+        int j = 0;
+        for (int i = 1; i < pattern.size(); ++i) {
+            while (j > 0 && pattern[i] != pattern[j]) {
+                j = prefixTable[j - 1];
+            }
+            if (pattern[i] == pattern[j]) {
+                j++;
+            }
+            prefixTable[i] = j;
+        }
+        return prefixTable;
+    }
+
+    // KMP Algorithm to find if a pattern exists in a text
+    bool KMP(const string& text, const string& pattern) {
+        if (pattern.empty()) return true;
+        vector<int> prefixTable = buildPrefixTable(pattern);
+        int j = 0;
+        for (int i = 0; i < text.size(); ++i) {
+            while (j > 0 && text[i] != pattern[j]) {
+                j = prefixTable[j - 1];
+            }
+            if (text[i] == pattern[j]) {
+                j++;
+            }
+            if (j == pattern.size()) {
+                return true;
+            }
+        }
+        return false;
+    }
+        // DFS Helper function to find all paths
+    void DFS(const string& current, const string& destination, map<string, bool>& visited, vector<string>& path, vector<vector<string>>& allPaths) {
+        visited[current] = true;
+        path.push_back(current);
+
+        if (current == destination) {
+            allPaths.push_back(path);
+        } else {
+            for (const auto& neighbor : cityGraph[current]) {
+                if (!visited[neighbor.first]) {
+                    DFS(neighbor.first, destination, visited, path, allPaths);
+                }
+            }
+        }
+
+        path.pop_back();
+        visited[current] = false;
+    }
+        // Boyer-Moore algorithm for pattern matching
+    map<char, int> buildBadCharTable(const string& pattern) {
+        map<char, int> badCharTable;
+        for (int i = 0; i < pattern.size(); i++) {
+            badCharTable[pattern[i]] = i;
+        }
+        return badCharTable;
+    }
+
+    bool boyerMooreSearch(const string& text, const string& pattern) {
+        int m = pattern.size();
+        int n = text.size();
+        if (m > n) return false;
+
+        map<char, int> badCharTable = buildBadCharTable(pattern);
+        int shift = 0;
+
+        while (shift <= (n - m)) {
+            int j = m - 1;
+
+            while (j >= 0 && pattern[j] == text[shift + j]) {
+                j--;
+            }
+
+            if (j < 0) {
+                return true;
+            } else {
+                char badChar = text[shift + j];
+                shift += max(1, j - (badCharTable.count(badChar) ? badCharTable[badChar] : -1));
+            }
+        }
+        return false;
+    }
+
+public:
+    TransportSystem() {
+        // Define the city graph with given routes
+        cityGraph["A"] = {{"B", 3}, {"C", 4}};
+        cityGraph["B"] = {{"A", 3}, {"C", 5}, {"D", 4}, {"E", 3}};
+        cityGraph["C"] = {{"A", 4}, {"B", 5}, {"D", 1}};
+        cityGraph["D"] = {{"B", 4}, {"C", 1}, {"F", 4}, {"E", 1}};
+        cityGraph["E"] = {{"B", 3}, {"D", 1}, {"F", 1}};
+        cityGraph["F"] = {{"D", 4}, {"E", 1}};
+
+        // Add edges to the graph
+        edges = {
+            {"A", "B", 3}, {"A", "C", 4},
+            {"B", "C", 5}, {"B", "D", 4}, {"B", "E", 3},
+            {"C", "D", 1},
+            {"D", "F", 4}, {"D", "E", 1},
+            {"E", "F", 1}
+        };
+    }
+
+    // Function to add transport information using insertion sort to maintain order by arrival time
+    void inputTransport() {
+        Transport newTransport;
+        cout << "Enter registration number: ";
+        cin.ignore();
+        getline(cin, newTransport.regNo);
+        cout << "Enter transport type: ";
+        getline(cin, newTransport.type);
+        cout << "Enter cost of transport: ";
+        cin >> newTransport.cost;
+        cin.ignore();
+        cout << "Enter destination: ";
+        getline(cin, newTransport.destination);
+        cout << "Enter arrival time: ";
+        getline(cin, newTransport.arrivalTime);
+
+        // Insert the transport into the sorted vector using insertion sort
+        auto it = transports.begin();
+        while (it != transports.end() && it->arrivalTime <= newTransport.arrivalTime) {
+            ++it;
+        }
+        transports.insert(it, newTransport);
+
+        cout << "Transport added successfully and sorted by arrival time!\n";
+    }
+
+    // Function to delete transport by registration number
+    void deleteTransport() {
+        string regNo;
+        cout << "Enter the registration number to delete: ";
+        cin.ignore();
+        getline(cin, regNo);
+
+        // Find and remove transport with matching registration number
+        bool found = false;
+        for (auto it = transports.begin(); it != transports.end(); ++it) {
+            if (it->regNo == regNo) {
+                transports.erase(it);
+                found = true;
+                cout << "Transport with registration number " << regNo << " deleted successfully!\n";
+                break;
+            }
+        }
+
+        if (!found) {
+            cout << "Transport with registration number " << regNo << " not found!\n";
+        }
+    }
+
+    // Function to display all transports
+    void displayTransports() {
+        if (transports.empty()) {
+            cout << "No transports available!\n";
+            return;
+        }
+
+        cout << "\nAll Transport Details:\n";
+        for (const auto& transport : transports) {
+            cout << "RegNo: " << transport.regNo << ", Type: " << transport.type
+                 << ", Cost: " << transport.cost << ", Destination: " << transport.destination
+                 << ", Arrival Time: " << transport.arrivalTime << endl;
+        }
+    }
+
+    // Function to display the predefined city graph (routes)
+    void displayCityGraph() {
+        cout << "\nCity Routes (Graph):\n";
+        for (const auto& place : cityGraph) {
+            cout << place.first << " is connected to:\n";
+            for (const auto& route : place.second) {
+                cout << "  - " << route.first << " with distance " << route.second << " km\n";
+            }
+        }
+    }
+
+    // Function to find the shortest path using Dijkstra's Algorithm
+    void findShortestPath(const string& start, const string& end) {
+        // Min-heap priority queue to store (distance, node)
+        priority_queue<pair<double, string>, vector<pair<double, string>>, greater<pair<double, string>>> pq;
+
+        // Distance map to store the shortest distance to each node
+        map<string, double> distances;
+
+        // Initialize distances to infinity
+        for (const auto& place : cityGraph) {
+            distances[place.first] = INT_MAX;
+        }
+
+        // Set the distance to the start node as 0 and push it to the queue
+        distances[start] = 0;
+        pq.push({0, start});
+
+        while (!pq.empty()) {
+            auto [currentDist, currentNode] = pq.top();
+            pq.pop();
+
+            // Iterate over neighbors of the current node
+            for (const auto& neighbor : cityGraph[currentNode]) {
+                string neighborNode = neighbor.first;
+                double edgeWeight = neighbor.second;
+
+                // Calculate new distance
+                double newDist = currentDist + edgeWeight;
+                if (newDist < distances[neighborNode]) {
+                    distances[neighborNode] = newDist;
+                    pq.push({newDist, neighborNode});
+                }
+            }
+        }
+
+        // Output the shortest distance
+        if (distances[end] == INT_MAX) {
+            cout << "No path exists from " << start << " to " << end << ".\n";
+        } else {
+            cout << "The shortest distance from " << start << " to " << end << " is: " << distances[end] << " km.\n";
+        }
+    }
+
+    // Function to display schedule of a specific transport type sorted by arrival time using bubble sort
+    void displayScheduleByType() {
+        string type;
+        cout << "Enter the transport type to display schedule: ";
+        cin.ignore();
+        getline(cin, type);
+
+        vector<Transport> filteredTransports;
+
+        // Filter transports by the given type
+        for (const auto& transport : transports) {
+            if (transport.type == type) {
+                filteredTransports.push_back(transport);
+            }
+        }
+
+        if (filteredTransports.empty()) {
+            cout << "No transports of type " << type << " found!\n";
+            return;
+        }
+
+        // Bubble sort the filtered transports by arrival time
+        for (size_t i = 0; i < filteredTransports.size() - 1; ++i) {
+            for (size_t j = 0; j < filteredTransports.size() - i - 1; ++j) {
+                if (filteredTransports[j].arrivalTime > filteredTransports[j + 1].arrivalTime) {
+                    swap(filteredTransports[j], filteredTransports[j + 1]);
+                }
+            }
+        }
+
+        // Display the sorted schedule
+        cout << "\nSchedule for transport type " << type << ":\n";
+        for (const auto& transport : filteredTransports) {
+            cout << "RegNo: " << transport.regNo << ", Cost: " << transport.cost
+                 << ", Destination: " << transport.destination
+                 << ", Arrival Time: " << transport.arrivalTime << endl;
+        }
+    }
+
+    // Function to find the Minimum Spanning Tree (MST) using Kruskal's algorithm
+    void findBestRoutePlan() {
+        // Sort edges by weight
+        sort(edges.begin(), edges.end(), [](const Edge& e1, const Edge& e2) {
+            return e1.weight < e2.weight;
+        });
+
+        // Initialize Union-Find structure
+        for (const auto& edge : edges) {
+            makeSet(edge.src);
+            makeSet(edge.dest);
+        }
+
+        // Perform Kruskal's algorithm
+        vector<Edge> mst;
+        for (const auto& edge : edges) {
+            if (findSet(edge.src) != findSet(edge.dest)) {
+                mst.push_back(edge);
+                unionSets(edge.src, edge.dest);
+            }
+        }
+
+        // Display the MST
+        cout << "\nBest Route Plan (Minimum Spanning Tree):\n";
+        for (const auto& edge : mst) {
+            cout << edge.src << " - " << edge.dest << " : " << edge.weight << " km\n";
+        }
+    }
+
+    // Function to display all transports with a specific destination using KMP algorithm
+    void displayByDestination()
+    {
+        string destination;
+        cout << "Enter destination to search: ";
+        cin.ignore();
+        getline(cin, destination);
+
+        bool found = false;
+        cout << "\nTransports going to destination containing \"" << destination << "\":\n";
+        for (const auto& transport : transports) {
+            if (KMP(transport.destination, destination)) {
+                cout << "RegNo: " << transport.regNo << ", Type: " << transport.type
+                     << ", Cost: " << transport.cost << ", Destination: " << transport.destination
+                     << ", Arrival Time: " << transport.arrivalTime << endl;
+                found = true;
+            }
+        }
+
+        if (!found) {
+            cout << "No transports found for the specified destination.\n";
+        }
+    }
+     // Function to find all possible ways from source to destination using DFS
+    void findAllPathsDFS(const string& start, const string& end) {
+        map<string, bool> visited;
+        vector<string> path;
+        vector<vector<string>> allPaths;
+
+        DFS(start, end, visited, path, allPaths);
+
+        cout << "\nAll possible paths from " << start << " to " << end << ":\n";
+        for (const auto& p : allPaths) {
+            for (const auto& node : p) {
+                cout << node << " ";
+            }
+            cout << endl;
+        }
+
+        if (allPaths.empty()) {
+            cout << "No path exists from " << start << " to " << end << ".\n";
+        }
+    }
+
+         // Function to display immediate places connected to a source using BFS
+    void displayImmediateConnections(const string& start) {
+        if (cityGraph.find(start) == cityGraph.end()) {
+            cout << "Invalid source point." << endl;
+            return;
+        }
+
+        cout << "\nImmediate connections from " << start << " (" << getPlaceName(start) << "):\n";
+        for (const auto& neighbor : cityGraph[start]) {
+            cout << neighbor.first << " (" << getPlaceName(neighbor.first) << ")\n";
+        }
+    }
+
+    string getPlaceName(const string& code) {
+        if (code == "A") return "Railway Station";
+        if (code == "B") return "Bus Stand";
+        if (code == "C") return "Central Market";
+        if (code == "D") return "Mall";
+        if (code == "E") return "Corporation";
+        if (code == "F") return "Amusement Park";
+        return "Unknown";
+    }
+  // Function to display the transport with the least cost for a specific destination
+    void displayLeastCostTransport()
+    {
+        string destination;
+        cout << "Enter destination to search for least cost transport: ";
+        cin.ignore();
+        getline(cin, destination);
+
+        double minCost = INT_MAX;
+        Transport leastCostTransport;
+        bool found = false;
+
+        for (const auto& transport : transports) {
+            if (boyerMooreSearch(transport.destination, destination)) {
+                if (transport.cost < minCost) {
+                    minCost = transport.cost;
+                    leastCostTransport = transport;
+                    found = true;
+                }
+            }
+        }
+
+        if (found) {
+            cout << "\nLeast Cost Transport to " << destination << ":\n";
+            cout << "RegNo: " << leastCostTransport.regNo << ", Type: " << leastCostTransport.type
+                 << ", Cost: " << leastCostTransport.cost << ", Destination: " << leastCostTransport.destination
+                 << ", Arrival Time: " << leastCostTransport.arrivalTime << endl;
+        } else {
+            cout << "No transport found for the specified destination." << endl;
+        }
+    }
+};
 int main() {
     TransportSystem system;
     int choice;
+
     do {
-        cout << "Menu:" << endl;
-        cout << "1. Input Transport" << endl;
-        cout << "2. Delete Transport" << endl;
-        cout << "3. Display All Transports" << endl;
-        cout << "0. Exit" << endl;
+        cout << "\nMenu:\n";
+        cout << "1. Input Transport\n";
+        cout << "2. Delete Transport by Registration Number\n";
+        cout << "3. Display All Transports\n";
+        cout << "4. Display City Graph\n";
+        cout << "5. Find Shortest Path (Dijkstra's Algorithm)\n";
+        cout << "6. Display Schedule by Transport Type\n";
+        cout << "7. Find Best Route Plan (Kruskal's Algorithm)\n";
+        cout << "8. Display Transports by Destination (KMP Algorithm)\n";
+        cout << "9. Find All Possible Paths (DFS)\n";
+        cout << "10. Display Immediate Connections (BFS)\n";
+        cout << "11. Display Least Cost Transport to Destination (Boyer-Moore Algorithm)\n";
+        cout << "0. Exit\n";
+        cout << "Enter your choice: ";
         cin >> choice;
+
+        switch (choice) {
+            case 1:
+                system.inputTransport();
+                break;
+            case 2:
+                system.deleteTransport();
+                break;
+            case 3:
+                system.displayTransports();
+                break;
+            case 4:
+                system.displayCityGraph();
+                break;
+            case 5: {
+                string start, end;
+                cout << "Enter start point (e.g., A, B, C): ";
+                cin >> start;
+                cout << "Enter end point (e.g., A, B, C): ";
+                cin >> end;
+                system.findShortestPath(start, end);
+                break;
+            }
+            case 6:
+                system.displayScheduleByType();
+                break;
+            case 7:
+                system.findBestRoutePlan();
+                break;
+            case 8:
+                system.displayByDestination();
+                break;
+            case 9: {
+                string start, end;
+                cout << "Enter start point (e.g., A, B, C): ";
+                cin >> start;
+                cout << "Enter end point (e.g., A, B, C): ";
+                cin >> end;
+                system.findAllPathsDFS(start, end);
+                break;
+            }
+            case 10: {
+                string start;
+                cout << "Enter source point (e.g., A, B, C): ";
+                cin >> start;
+                system.displayImmediateConnections(start);
+                break;
+            }
+            case 11:
+                system.displayLeastCostTransport();
+                break;
+            case 0:
+                cout << "Exiting the program.\n";
+                break;
+            default:
+                cout << "Invalid choice! Please try again.\n";
+                break;
+        }
     } while (choice != 0);
+
     return 0;
 }
         </pre>
