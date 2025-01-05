@@ -91,6 +91,16 @@
                         <li>01FE23BCS108</li> 
                         <li>01FE23BCS092</li> 
                     </ul>
+			<div class="detail-item">
+    <h3 class="detail-title">Team Portfolios</h3>
+    <ul>
+        <li><strong>Aruda G:</strong> <a href="https://sites.google.com/your-link-aruda" target="_blank">Visit Aruda's Site</a></li>
+        <li><strong>Bhagya D:</strong> <a href="https://sites.google.com/your-link-bhagya" target="_blank">Visit Bhagya's Site</a></li>
+        <li><strong>S Ganavi:</strong> <a href="https://sites.google.com/your-link-ganavi" target="_blank">Visit Ganavi's Site</a></li>
+        <li><strong>Yash P:</strong> <a href="https://sites.google.com/your-link-yash" target="_blank">Visit Yash's Site</a></li>
+    </ul>
+</div>
+
                 </div>
                 <div class="detail-item">
                     <h3 class="detail-title">Course Instructor</h3>
@@ -209,7 +219,7 @@
         </table>
     </section>
 
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -236,57 +246,127 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            overflow: auto;
+        }
     </style>
 </head>
 <body>
-   <button class="button" onclick="toggleInfo('sdg-goals')">SDGs Reflected</button>
 
-<section id="sdg-goals" style="display:none;">
-    <h2>SDGs Addressed in the Code</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>SDG</th>
-                <th>Goal Name</th>
-                <th>Relevance to the Code</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>SDG 9</strong></td>
-                <td>Industry, Innovation, and Infrastructure</td>
-                <td>Algorithms like <strong>Dijkstra’s Algorithm</strong> and <strong>Kruskal’s Algorithm</strong> optimize transportation routes and infrastructure planning, contributing to sustainable and efficient infrastructure development.</td>
-            </tr>
-            <tr>
-                <td><strong>SDG 11</strong></td>
-                <td>Sustainable Cities and Communities</td>
-                <td>Functions such as <strong>findBestRoutePlan</strong> and <strong>findShortestPath</strong> support better urban transportation systems, improving accessibility and reducing congestion.</td>
-            </tr>
-            <tr>
-                <td><strong>SDG 13</strong></td>
-                <td>Climate Action</td>
-                <td>Efficient transportation planning and routing algorithms reduce fuel consumption and emissions, contributing to environmentally friendly transport systems.</td>
-            </tr>
-            <tr>
-                <td><strong>SDG 8</strong></td>
-                <td>Decent Work and Economic Growth</td>
-                <td>Optimized transportation and scheduling systems can improve logistics, boost trade efficiency, and create economic growth opportunities.</td>
-            </tr>
-            <tr>
-                <td><strong>SDG 12</strong></td>
-                <td>Responsible Consumption and Production</td>
-                <td>Efficient scheduling and routing reduce resource wastage, ensuring responsible usage of resources in transportation systems.</td>
-            </tr>
-        </tbody>
-    </table>
-</section>
+    <!-- Your content goes here -->
 
+    <button class="button" onclick="toggleInfo('sdg-goals')">SDGs Reflected</button>
 
+    <section id="sdg-goals" style="display:none;">
+        <h2>SDGs Addressed in the Code</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>SDG</th>
+                    <th>Goal Name</th>
+                    <th>Relevance to the Code</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>SDG 9</strong></td>
+                    <td>Industry, Innovation, and Infrastructure</td>
+                    <td>Algorithms like <strong>Dijkstra’s Algorithm</strong> and <strong>Kruskal’s Algorithm</strong> optimize transportation routes and infrastructure planning, contributing to sustainable and efficient infrastructure development.</td>
+                </tr>
+                <tr>
+                    <td><strong>SDG 11</strong></td>
+                    <td>Sustainable Cities and Communities</td>
+                    <td>Functions such as <strong>findBestRoutePlan</strong> and <strong>findShortestPath</strong> support better urban transportation systems, improving accessibility and reducing congestion.</td>
+                </tr>
+                <tr>
+                    <td><strong>SDG 13</strong></td>
+                    <td>Climate Action</td>
+                    <td>Efficient transportation planning and routing algorithms reduce fuel consumption and emissions, contributing to environmentally friendly transport systems.</td>
+                </tr>
+                <tr>
+                    <td><strong>SDG 8</strong></td>
+                    <td>Decent Work and Economic Growth</td>
+                    <td>Optimized transportation and scheduling systems can improve logistics, boost trade efficiency, and create economic growth opportunities.</td>
+                </tr>
+                <tr>
+                    <td><strong>SDG 12</strong></td>
+                    <td>Responsible Consumption and Production</td>
+                    <td>Efficient scheduling and routing reduce resource wastage, ensuring responsible usage of resources in transportation systems.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="code-section">
+        <button onclick="toggleCode()">Show C++ Code</button>
+        <pre id="cppCode" style="display:none;">
+#include <iostream>
+#include <vector>
+#include <string>
+#include <map>
+#include <list>
+#include <queue>
+#include <climits>
+#include <algorithm>
+using namespace std;
+
+struct Transport {
+    string regNo;
+    string type;
+    double cost;
+    string destination;
+    string arrivalTime;
+};
+
+struct Edge {
+    string src, dest;
+    double weight;
+};
+
+class TransportSystem {
+    // Class implementation
+};
+
+int main() {
+    TransportSystem system;
+    int choice;
+    do {
+        cout << "Menu:" << endl;
+        cout << "1. Input Transport" << endl;
+        cout << "2. Delete Transport" << endl;
+        cout << "3. Display All Transports" << endl;
+        cout << "0. Exit" << endl;
+        cin >> choice;
+    } while (choice != 0);
+    return 0;
+}
+        </pre>
+    </div>
+
+    <script>
+        function toggleCode() {
+            const codeBlock = document.getElementById('cppCode');
+            codeBlock.style.display = codeBlock.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Additional toggle for SDGs section
+        function toggleInfo(id) {
+            const section = document.getElementById(id);
+            if (section.style.display === "none" || section.style.display === "") {
+                section.style.display = "block";
+            } else {
+                section.style.display = "none";
+            }
+        }
+    </script>
 
     <!-- Footer -->
     <footer>
         <blockquote>“Because a Smart City deserves smarter commutes”</blockquote>
-        <p>&copy; DAA Course Project| Designed by Students of KLE Technological University</p>
+        <p>&copy; DAA Course Project | Designed by Students of KLE Technological University</p>
     </footer>
 </body>
 </html>
