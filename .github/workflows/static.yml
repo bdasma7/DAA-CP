@@ -29,22 +29,26 @@ jobs:
       # Set up Emscripten
       - name: Set up Emscripten
         run: |
-          # Install dependencies
           sudo apt-get update
           sudo apt-get install -y cmake python3
           
-          # Install Emscripten SDK
           git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
           source ./emsdk_env.sh
-          
+
+      # Verify Emscripten installation
+      - name: Verify Emscripten installation
+        run: |
+          source ./emsdk_env.sh
+          emcc --version
+
       # Compile C++ code to WebAssembly
       - name: Compile C++ code to WebAssembly
         run: |
-          source ./emsdk_env.sh # Ensure Emscripten environment is set
-          emcc your_cpp_file.cpp -o output.html # Replace with your actual C++ file
+          source ./emsdk_env.sh
+          emcc your_cpp_file.cpp -o output.html || exit 1
 
       # Setup Pages (after compiling)
       - name: Setup Pages
@@ -54,7 +58,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './output.html' # Replace with your compiled files
+          path: './output.html'
 
       # Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
