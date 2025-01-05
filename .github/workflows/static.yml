@@ -26,28 +26,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Set up Emscripten
+      # Install dependencies and set up Emscripten SDK
       - name: Set up Emscripten
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake python3
-          
+
+          # Clone Emscripten repository
           git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
+          
+          # Install and activate the latest Emscripten SDK
           ./emsdk install latest
           ./emsdk activate latest
+          
+          # Set up the environment
           source ./emsdk_env.sh
 
       # Verify Emscripten installation
       - name: Verify Emscripten installation
         run: |
-          source ./emsdk_env.sh
+          source ./emsdk/emsdk_env.sh
           emcc --version
 
       # Compile C++ code to WebAssembly
       - name: Compile C++ code to WebAssembly
         run: |
-          source ./emsdk_env.sh
+          source ./emsdk/emsdk_env.sh
           emcc your_cpp_file.cpp -o output.html || exit 1
 
       # Setup Pages (after compiling)
