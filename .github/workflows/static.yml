@@ -1,27 +1,20 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -33,32 +26,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Set up Emscripten to compile C++ code
+      # Set up Emscripten
       - name: Set up Emscripten
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          
-      - name: Install Emscripten
         run: |
+          # Install dependencies
           sudo apt-get update
-          sudo apt-get install -y cmake
+          sudo apt-get install -y cmake python3
+          
+          # Install Emscripten SDK
           git clone https://github.com/emscripten-core/emsdk.git
           cd emsdk
           ./emsdk install latest
           ./emsdk activate latest
           source ./emsdk_env.sh
-
+          
       # Compile C++ code to WebAssembly
       - name: Compile C++ code to WebAssembly
         run: |
-          emcc your_cpp_file.cpp -o output.html
+          source ./emsdk_env.sh # Ensure Emscripten environment is set
+          emcc your_cpp_file.cpp -o output.html # Replace with your actual C++ file
 
       # Setup Pages (after compiling)
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      # Upload the compiled artifact (including .html, .js, .wasm files)
+      # Upload the compiled artifact
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
